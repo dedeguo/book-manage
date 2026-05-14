@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>新增图书 - 校园图书管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 侧边导航栏 */
+        .sidebar {
+            width: 240px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 30px 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-menu { flex: 1; padding-top: 20px; }
+        .nav-item { padding: 15px 25px; display: block; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; }
+        .nav-item.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
+
+        /* 主体内容 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+
+        .content-body { padding: 30px; overflow-y: auto; }
+
+        /* 表单卡片 */
+        .form-card {
+            background: white;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .form-header { margin-bottom: 30px; border-bottom: 1px solid #e5e7eb; padding-bottom: 15px; }
+        .form-header h2 { color: #111827; font-size: 20px; font-weight: 600; }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group.full-width { grid-column: span 1; }
+            .form-card { padding: 25px; }
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group.full-width { grid-column: span 2; }
+
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #606266; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .form-group input:hover, .form-group select:hover, .form-group textarea:hover {
+            border-color: #c0c4cc;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+        .form-group textarea { height: 120px; resize: vertical; }
+
+        /* 按钮组 */
+        .button-group {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        .btn {
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            transition: all 0.2s;
+            min-height: 40px;
+        }
+        .btn-cancel {
+            background: #f4f4f5;
+            color: #606266;
+        }
+        .btn-cancel:hover {
+            background: #e9e9eb;
+            transform: translateY(-1px);
+        }
+        .btn-submit {
+            background: #3498db;
+            color: white;
+        }
+        .btn-submit:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .btn-submit:focus {
+            outline: 2px solid #3498db;
+            outline-offset: 2px;
+        }
+
+        .tip-box {
+            background-color: #eff6ff;
+            border-left: 4px solid #3498db;
+            color: #1d4ed8;
+            padding: 14px 20px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            line-height: 1.6;
+        }
+        .tip-box span:first-child {
+            font-size: 18px;
+        }
+    </style>
+<script src="../js/common.js"></script>
+</head>
+<body>
+<script>
+    // 页面加载时检查管理员登录状态
+    window.addEventListener('DOMContentLoaded', function() {
+        if (!Auth.isLoggedIn() || !Auth.isAdmin()) {
+            Utils.toast('需要管理员权限', 'error');
+            setTimeout(() => {
+                window.location.href = '../user/login.html';
+            }, 1000);
+            return;
+        }
+
+        // 更新管理员信息显示
+        const user = Auth.getUser();
+        if (user) {
+            document.querySelector('.user-info').textContent = `管理员：${user.name}`;
+        }
+
+        // 表单提交处理
+        document.querySelector('form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            // 数据验证
+            if (!data.title || !data.author || !data.publisher || !data.isbn || !data.category) {
+                Utils.toast('请填写所有必填项', 'error');
+                return;
+            }
+
+            try {
+                const result = await API.post('/admin/books?action=create', {
+                    ...data,
+                    action: 'create'
+                });
+                if (result.code === 200) {
+                    Utils.toast('图书添加成功', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'book-manage.html';
+                    }, 1000);
+                } else {
+                    Utils.toast(result.message || '添加失败', 'error');
+                }
+            } catch (error) {
+                Utils.toast(error.message || '添加失败', 'error');
+            }
+        });
+
+        // 退出登录函数
+        window.logout = async function(event) {
+            if (event) event.preventDefault();
+            try {
+                await API.post('/auth?action=logout');
+                Auth.clearUser();
+                Utils.toast('退出成功', 'success');
+                setTimeout(() => {
+                    window.location.href = '../user/login.html';
+                }, 500);
+            } catch (error) {
+                Utils.toast(error.message || '退出失败', 'error');
+            }
+        };
+    });
+</script>
+
+<div class="sidebar">
+    <div class="sidebar-header">📚 管理员后台</div>
+    <div class="nav-menu">
+        <a href="admin-index.html" class="nav-item">首页概览</a>
+        <a href="book-manage.html" class="nav-item active">图书管理</a>
+        <a href="user-manage.html" class="nav-item">用户管理</a>
+        <a href="borrow-records.html" class="nav-item">借阅记录</a>
+    </div>
+    <a href="#" onclick="logout(event)" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">退出登录</a>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="breadcrumb">图书管理 / 新增图书</div>
+        <div class="user-info">管理员：admin</div>
+    </header>
+
+    <div class="content-body">
+        <div class="form-card">
+            <div class="form-header">
+                <h2>录入新图书</h2>
+            </div>          
+    <div class="tip-box">
+        <span>💡</span>
+        <span>
+          <b>操作提示：</b>新图书保存后默认状态为“可借”，系统将自动根据“复本数量” 初始化库存。
+        </span>
+    </div>
+            
+
+            <form action="/api/admin/books" method="POST">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>图书名称</label>
+                        <input type="text" name="title" placeholder="请输入完整书名" required>
+                    </div>
+                    <div class="form-group">
+                        <label>作者</label>
+                        <input type="text" name="author" placeholder="姓名/译者" required>
+                    </div>
+                    <div class="form-group">
+                        <label>出版社</label>
+                        <input type="text" name="publisher" placeholder="例如：清华大学出版社" required>
+                    </div>
+                    <div class="form-group">
+                        <label>ISBN 编号</label>
+                        <input type="text" name="isbn" placeholder="13位 ISBN 号" required>
+                    </div>
+                    <div class="form-group">
+                        <label>图书分类</label>
+                        <select name="category">
+                            <option value="计算机/互联网">计算机/互联网</option>
+                            <option value="文学/小说">文学/小说</option>
+                            <option value="教材/教辅">教材/教辅</option>
+                            <option value="历史/地理">历史/地理</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>封面图片 URL</label>
+                        <input type="url" name="coverUrl" placeholder="http://...">
+                    </div>
+                    <div class="form-group">
+                        <label>复本数量</label>
+                        <input type="number" name="totalCopies" value="1" min="1" placeholder="默认 1 本">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>内容简介</label>
+                        <textarea name="description" placeholder="请输入图书概要内容..."></textarea>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-cancel" onclick="history.back()">取消并返回</button>
+                    <button type="submit" class="btn btn-submit">立即保存图书</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

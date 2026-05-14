@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理 - 校园图书管理系统</title>
+    <style>
+        /* 基础样式复位 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 侧边导航栏 */
+        .sidebar {
+            width: 240px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 30px 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-menu { flex: 1; padding-top: 20px; }
+        .nav-item { padding: 15px 25px; display: block; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: all 0.3s; }
+        .nav-item:hover, .nav-item.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
+
+        /* 主体内容区 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+
+        .content-body { padding: 30px; overflow-y: auto; }
+
+        /* 顶部操作区 */
+        .search-bar {
+            margin-bottom: 25px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-input {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            width: 200px;
+            outline: none;
+            font-size: 14px;
+            min-height: 44px;
+            transition: all 0.2s;
+        }
+        .search-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+        .search-input:hover {
+            border-color: #b0b0b0;
+        }
+        .search-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .search-label {
+            font-size: 14px;
+            color: #606266;
+            font-weight: 500;
+        }
+
+        /* 搜索按钮 */
+        .btn-search {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+        .btn-search:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        .btn-search svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 用户列表表格 */
+        .user-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .user-table th {
+            background: #f8f9fa;
+            text-align: left;
+            padding: 15px 20px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .user-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #374151;
+        }
+        .user-table tbody tr {
+            transition: background-color 0.2s;
+        }
+        .user-table tbody tr:hover {
+            background: #f9fafb;
+        }
+        .user-type-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        .type-student { background: #e6fffb; color: #0891b2; border: 1px solid #67e8f9; }
+        .type-teacher { background: #f0f9ff; color: #0369a1; border: 1px solid #7dd3fc; }
+
+        /* 角色标签样式 */
+        .role-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        .role-admin { background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; }
+        .role-user { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+
+        /* 借阅状态小圆点 */
+        .status-dot {
+            height: 8px;
+            width: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .dot-borrowing { background-color: #ff4d4f; }
+        .dot-clear { background-color: #52c41a; }
+
+        /* 操作按钮 */
+        .btn-delete {
+            background: transparent;
+            border: 1px solid #ff4d4f;
+            color: #ff4d4f;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            min-height: 36px;
+        }
+        .btn-delete:hover {
+            background: #ff4d4f;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(255, 77, 79, 0.3);
+        }
+        .btn-delete:focus {
+            outline: 2px solid #ff4d4f;
+            outline-offset: 2px;
+        }
+        .btn-delete:disabled {
+            border-color: #d9d9d9;
+            color: #bfbfbf;
+            cursor: not-allowed;
+            background: #f5f5f5;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        .empty-state p {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        /* 响应式支持 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-input {
+                width: 100%;
+            }
+            .user-table {
+                font-size: 13px;
+            }
+            .user-table th,
+            .user-table td {
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">📚 管理员后台</div>
+    <div class="nav-menu">
+        <a href="admin-index.html" class="nav-item">首页概览</a>
+        <a href="book-manage.html" class="nav-item">图书管理</a>
+        <a href="#" class="nav-item active">用户管理</a>
+        <a href="borrow-records.html" class="nav-item">借阅记录</a>
+    </div>
+    <a href="/api/logout" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">退出登录</a>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="breadcrumb">系统管理 / 用户列表</div>
+        <div class="user-info">管理员：admin</div>
+    </header>
+
+    <div class="content-body">
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <div class="search-group">
+                <span class="search-label">学号/工号</span>
+                <input type="text" class="search-input" placeholder="请输入学号或工号" id="searchUsername">
+            </div>
+            <div class="search-group">
+                <span class="search-label">姓名</span>
+                <input type="text" class="search-input" placeholder="请输入姓名" id="searchName">
+            </div>
+            <button class="btn-search" onclick="handleSearch()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                搜索
+            </button>
+        </div>
+
+        <!-- 用户表格 -->
+        <table class="user-table">
+            <thead>
+                <tr>
+                    <th>学号/工号</th>
+                    <th>姓名</th>
+                    <th>电子邮箱</th>
+                    <th>用户类型</th>
+                    <th>角色</th>
+                    <th>借阅状态</th>
+                    <th>注册时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <tr>
+                    <td>20220104044</td>
+                    <td>陈德</td>
+                    <td>chende@wbu.edu.cn</td>
+                    <td><span class="user-type-badge type-student">学生</span></td>
+                    <td><span class="role-badge role-user">普通用户</span></td>
+                    <td><span class="status-dot dot-borrowing"></span> 借阅中</td>
+                    <td>2026-03-21 14:30</td>
+                    <td>
+                        <button class="btn-delete" disabled title="该用户有未归还图书，无法删除">删除</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>T2019001</td>
+                    <td>王老师</td>
+                    <td>wang@wbu.edu.cn</td>
+                    <td><span class="user-type-badge type-teacher">教师</span></td>
+                    <td><span class="role-badge role-user">普通用户</span></td>
+                    <td><span class="status-dot dot-clear"></span> 无借阅</td>
+                    <td>2026-03-22 09:15</td>
+                    <td>
+                        <button class="btn-delete" onclick="handleDelete('王老师')">删除</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>admin</td>
+                    <td>系统管理员</td>
+                    <td>admin@wbu.edu.cn</td>
+                    <td>-</td>
+                    <td><span class="role-badge role-admin">系统管理员</span></td>
+                    <td>-</td>
+                    <td>2025-11-20 08:00</td>
+                    <td>-</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 空状态（隐藏，当无数据时显示） -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3>暂无用户数据</h3>
+            <p>当前搜索条件下没有找到用户，请尝试其他搜索词</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 搜索处理
+    function handleSearch() {
+        const username = document.getElementById('searchUsername').value.trim();
+        const name = document.getElementById('searchName').value.trim();
+
+        if (!username && !name) {
+            alert('请输入学号/工号或姓名');
+            return;
+        }
+
+        alert('搜索条件：\n学号/工号：' + (username || '全部') + '\n姓名：' + (name || '全部'));
+        // TODO: 调用后端 API 进行搜索
+        // fetch('/api/admin/users/search?username=' + encodeURIComponent(username) + '&name=' + encodeURIComponent(name))
+    }
+
+    // 支持回车搜索
+    document.getElementById('searchUsername').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
+    document.getElementById('searchName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
+
+    // 删除单个用户
+    function handleDelete(userName) {
+        if (confirm('确定要删除用户 "' + userName + '" 吗？\n此操作不可恢复。')) {
+            alert('删除用户：' + userName);
+            // TODO: 调用后端 API
+        }
+    }
+</script>
+
+</body>
+</html>

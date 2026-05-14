@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>图书管理 - 校园图书管理系统</title>
+    <style>
+        /* 基础样式复位 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 侧边导航栏 */
+        .sidebar {
+            width: 240px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 30px 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-menu { flex: 1; padding-top: 20px; }
+        .nav-item { padding: 15px 25px; display: block; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: all 0.3s; }
+        .nav-item:hover, .nav-item.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
+
+        /* 主体内容区 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+
+        .content-body { padding: 30px; overflow-y: auto; }
+
+        /* 操作栏 */
+        .action-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+        }
+        .action-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* 新增按钮 */
+        .btn-add {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            min-height: 40px;
+        }
+        .btn-add:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .btn-add svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* 搜索输入框 */
+        .search-input {
+            padding: 10px 14px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            width: 280px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .search-input:hover {
+            border-color: #c0c4cc;
+        }
+        .search-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+
+        /* 分类筛选下拉框 */
+        .category-select {
+            padding: 10px 14px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            background: white;
+            outline: none;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 150px;
+            transition: all 0.2s;
+        }
+        .category-select:hover {
+            border-color: #c0c4cc;
+        }
+        .category-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+
+        /* 数据表格 */
+        .book-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+        .book-table th {
+            background: #f8f9fa;
+            text-align: left;
+            padding: 15px 20px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .book-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #374151;
+        }
+        .book-table tbody tr {
+            transition: background-color 0.2s;
+        }
+        .book-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* 图书信息 */
+        .book-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .book-cover {
+            width: 48px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #e5e7eb;
+            flex-shrink: 0;
+        }
+        .book-cover-placeholder {
+            width: 48px;
+            height: 64px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .book-cover-placeholder svg {
+            width: 24px;
+            height: 24px;
+            color: rgba(255,255,255,0.6);
+        }
+        .book-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .book-title {
+            font-weight: 600;
+            color: #111827;
+            font-size: 14px;
+        }
+        .book-meta {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+        .book-author {
+            color: #4b5563;
+        }
+
+        /* 复本数显示 */
+        .copy-count {
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .copy-available {
+            color: #059669;
+        }
+        .copy-total {
+            color: #6b7280;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        .status-available {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #6ee7b7;
+        }
+        .status-borrowed {
+            background: #fff7ed;
+            color: #d97706;
+            border: 1px solid #fcd34d;
+        }
+        .status-all-borrowed {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+
+        /* 操作按钮组 */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 编辑按钮 */
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            min-height: 32px;
+        }
+        .btn-edit:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        .btn-edit:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* 删除按钮 */
+        .btn-delete {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            min-height: 32px;
+        }
+        .btn-delete:hover {
+            background: #ef4444;
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+        .btn-delete:focus {
+            outline: 2px solid #ef4444;
+            outline-offset: 2px;
+        }
+        .btn-delete:disabled {
+            border-color: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            background: #f9fafb;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        .empty-state p {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        /* 响应式支持 */
+        @media (max-width: 1024px) {
+            .book-table {
+                font-size: 13px;
+            }
+            .book-table th,
+            .book-table td {
+                padding: 12px 10px;
+            }
+            .book-cover,
+            .book-cover-placeholder {
+                width: 40px;
+                height: 52px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .action-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .action-left {
+                flex-direction: column;
+            }
+            .search-input,
+            .category-select {
+                width: 100%;
+            }
+            .btn-add {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">📚 管理员后台</div>
+    <div class="nav-menu">
+        <a href="admin-index.html" class="nav-item">首页概览</a>
+        <a href="#" class="nav-item active">图书管理</a>
+        <a href="user-manage.html" class="nav-item">用户管理</a>
+        <a href="borrow-records.html" class="nav-item">借阅记录</a>
+    </div>
+    <a href="/api/logout" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">退出登录</a>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="breadcrumb">图书管理 / 全部图书</div>
+        <div class="user-info">管理员：admin</div>
+    </header>
+
+    <div class="content-body">
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div class="action-left">
+                <button class="btn-add" onclick="location.href='add-book.html'">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    新增图书
+                </button>
+                <input type="text" class="search-input" placeholder="搜索书名、作者或 ISBN..." id="searchInput">
+                <select class="category-select" id="categorySelect">
+                    <option value="">全部分类</option>
+                    <option value="计算机/互联网">计算机/互联网</option>
+                    <option value="文学/小说">文学/小说</option>
+                    <option value="教材/教辅">教材/教辅</option>
+                    <option value="历史/地理">历史/地理</option>
+                    <option value="经济/管理">经济/管理</option>
+                    <option value="艺术/设计">艺术/设计</option>
+                    <option value="其他">其他</option>
+                </select>
+            </div>
+            <button class="btn-add" style="background: #10b981;" onclick="handleSearch()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                搜索
+            </button>
+        </div>
+
+        <!-- 图书表格 -->
+        <table class="book-table">
+            <thead>
+                <tr>
+                    <th style="width: 35%;">图书信息</th>
+                    <th>ISBN</th>
+                    <th>分类</th>
+                    <th>复本数</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="bookTableBody">
+                <!-- 可借图书 -->
+                <tr>
+                    <td>
+                        <div class="book-info">
+                            <div class="book-cover-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <div class="book-detail">
+                                <span class="book-title">Java Web 开发实战</span>
+                                <span class="book-meta"><span class="book-author">王小明</span> · 清华大学出版社</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>9787302123456</td>
+                    <td>计算机/互联网</td>
+                    <td>
+                        <span class="copy-count">
+                            <span class="copy-available">3</span>
+                            <span class="copy-total"> / 5 本</span>
+                        </span>
+                    </td>
+                    <td><span class="status-badge status-available">可借</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="handleEdit('Java Web 开发实战')">编辑</button>
+                            <button class="btn-delete" onclick="handleDelete('Java Web 开发实战')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- 已全部借出 -->
+                <tr>
+                    <td>
+                        <div class="book-info">
+                            <div class="book-cover-placeholder" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <div class="book-detail">
+                                <span class="book-title">数据结构与算法分析</span>
+                                <span class="book-meta"><span class="book-author">李华</span> · 高等教育出版社</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>9787302654321</td>
+                    <td>教材/教辅</td>
+                    <td>
+                        <span class="copy-count">
+                            <span class="copy-available">0</span>
+                            <span class="copy-total"> / 3 本</span>
+                        </span>
+                    </td>
+                    <td><span class="status-badge status-all-borrowed">已全部借出</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="handleEdit('数据结构与算法分析')">编辑</button>
+                            <button class="btn-delete" disabled title="借阅中图书不可删除">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- 部分可借 -->
+                <tr>
+                    <td>
+                        <div class="book-info">
+                            <div class="book-cover-placeholder" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <div class="book-detail">
+                                <span class="book-title">深入理解计算机系统</span>
+                                <span class="book-meta"><span class="book-author">Randal E. Bryant</span> · 机械工业出版社</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>9787111456789</td>
+                    <td>计算机/互联网</td>
+                    <td>
+                        <span class="copy-count">
+                            <span class="copy-available">2</span>
+                            <span class="copy-total"> / 4 本</span>
+                        </span>
+                    </td>
+                    <td><span class="status-badge status-available">可借</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="handleEdit('深入理解计算机系统')">编辑</button>
+                            <button class="btn-delete" onclick="handleDelete('深入理解计算机系统')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+                <!-- 文学类图书 -->
+                <tr>
+                    <td>
+                        <div class="book-info">
+                            <div class="book-cover-placeholder" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <div class="book-detail">
+                                <span class="book-title">活着</span>
+                                <span class="book-meta"><span class="book-author">余华</span> · 作家出版社</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>9787506345678</td>
+                    <td>文学/小说</td>
+                    <td>
+                        <span class="copy-count">
+                            <span class="copy-available">1</span>
+                            <span class="copy-total"> / 2 本</span>
+                        </span>
+                    </td>
+                    <td><span class="status-badge status-available">可借</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-edit" onclick="handleEdit('活着')">编辑</button>
+                            <button class="btn-delete" onclick="handleDelete('活着')">删除</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 空状态（隐藏，当无数据时显示） -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <h3>暂无图书数据</h3>
+            <p>当前搜索条件下没有找到图书，请尝试其他搜索条件或新增图书</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 搜索处理
+    function handleSearch() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        const category = document.getElementById('categorySelect').value;
+
+        if (!keyword && !category) {
+            alert('请输入搜索关键词或选择分类');
+            return;
+        }
+
+        const conditions = [];
+        if (keyword) conditions.push('关键词：' + keyword);
+        if (category) conditions.push('分类：' + category);
+
+        alert('搜索条件：\n' + conditions.join('\n'));
+        // TODO: 调用后端 API 进行搜索
+        // fetch('/api/admin/books/search?keyword=' + encodeURIComponent(keyword) + '&category=' + encodeURIComponent(category))
+    }
+
+    // 编辑图书
+    function handleEdit(bookTitle) {
+        // TODO: 根据书名或 ID 跳转到编辑页面
+        alert('编辑图书：《' + bookTitle + '》\n跳转到编辑页面');
+        location.href = 'edit-book.html';
+        // 实际使用时传递图书 ID: location.href = 'edit-book.html?id=' + bookId;
+    }
+
+    // 删除图书
+    function handleDelete(bookTitle) {
+        if (confirm('确定要删除图书《' + bookTitle + '》吗？\n\n此操作不可恢复，请确认该书无人借阅！')) {
+            alert('已删除图书：《' + bookTitle + '》');
+            // TODO: 调用后端 API
+            // fetch('/api/admin/books/' + bookId, { method: 'DELETE' })
+        }
+    }
+
+    // 搜索输入框回车搜索
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            handleSearch();
+        }
+    });
+</script>
+
+</body>
+</html>

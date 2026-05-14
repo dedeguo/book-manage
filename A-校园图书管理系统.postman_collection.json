@@ -1,0 +1,590 @@
+{
+  "info": {
+    "_postman_id": "a00d4d95-a19e-4be8-ba2f-41fb1b8e13f0",
+    "name": "A2-校园图书管理系统",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3668399",
+    "_collection_link": "https://go.postman.co/collection/3668399-a00d4d95-a19e-4be8-ba2f-41fb1b8e13f0?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "认证模块",
+      "item": [
+        {
+          "name": "2.1 用户登录",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"admin\",\n    \"password\": \"123456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/auth?action=login",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "auth"],
+              "query": [{ "key": "action", "value": "login" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2.2 用户注册",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"20230101006\",\n  \"name\": \"张三\",\n  \"password\": \"123456\",\n  \"email\": \"zhangsan@wbu.edu.cn\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/auth?action=register",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "auth"],
+              "query": [{ "key": "action", "value": "register" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2.3 退出登录",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/auth?action=logout",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "auth"],
+              "query": [{ "key": "action", "value": "logout" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2.4 验证 Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/auth?action=validate",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "auth"],
+              "query": [{ "key": "action", "value": "validate" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "用户模块",
+      "item": [
+        {
+          "name": "3.1 获取个人信息",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/user?action=info",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "user"],
+              "query": [{ "key": "action", "value": "info" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3.2 修改密码",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"oldPassword\": \"123456\",\n    \"newPassword\": \"new123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/user?action=password",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "user"],
+              "query": [{ "key": "action", "value": "password" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3.3 修改邮箱",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"newEmail\": \"newemail@wbu.edu.cn\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/user?action=email",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "user"],
+              "query": [{ "key": "action", "value": "email" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "图书模块",
+      "item": [
+        {
+          "name": "4.1 获取图书列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/books?action=list",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "books"],
+              "query": [{ "key": "action", "value": "list" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4.2 获取图书详情",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/books?action=detail&id=1",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "books"],
+              "query": [
+                { "key": "action", "value": "detail" },
+                { "key": "id", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4.3 搜索图书",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/books?action=search&keyword=Java",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "books"],
+              "query": [
+                { "key": "action", "value": "search" },
+                { "key": "keyword", "value": "Java" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4.4 获取分类列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/books?action=categories",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "books"],
+              "query": [{ "key": "action", "value": "categories" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "借阅模块",
+      "item": [
+        {
+          "name": "5.1 获取我的借阅记录",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/borrow?action=my",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "borrow"],
+              "query": [{ "key": "action", "value": "my" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5.2 检查借阅资格",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/borrow?action=canBorrow",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "borrow"],
+              "query": [{ "key": "action", "value": "canBorrow" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5.3 借阅图书",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"bookId\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/borrow?action=borrow",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "borrow"],
+              "query": [{ "key": "action", "value": "borrow" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5.4 归还图书",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"bookId\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/borrow?action=return",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "borrow"],
+              "query": [{ "key": "action", "value": "return" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "管理员-图书",
+      "item": [
+        {
+          "name": "6.1 获取图书列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/books?action=list",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "books"],
+              "query": [{ "key": "action", "value": "list" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.2 获取图书详情",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/books?action=detail&id=1",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "books"],
+              "query": [
+                { "key": "action", "value": "detail" },
+                { "key": "id", "value": "1" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.3 搜索图书",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/books?action=search&keyword=Java",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "books"],
+              "query": [
+                { "key": "action", "value": "search" },
+                { "key": "keyword", "value": "Java" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.4 获取分类列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/books?action=categories",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "books"],
+              "query": [{ "key": "action", "value": "categories" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.5 新增图书",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Java 编程思想\",\n  \"author\": \"Bruce Eckel\",\n  \"publisher\": \"机械工业出版社\",\n  \"isbn\": \"9787111213826\",\n  \"description\": \"Java 经典教材\",\n  \"coverUrl\": \"https://example.com/cover.jpg\",\n  \"category\": \"计算机/互联网\",\n  \"totalCopies\": 3\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/books?action=create",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "books"],
+              "query": [{ "key": "action", "value": "create" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.6 更新图书",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 1,\n  \"title\": \"Java 编程思想（第 4 版）\",\n  \"author\": \"Bruce Eckel\",\n  \"publisher\": \"机械工业出版社\",\n  \"isbn\": \"9787111213826\",\n  \"description\": \"Java 经典教材，第 4 版\",\n  \"coverUrl\": \"https://example.com/cover.jpg\",\n  \"category\": \"计算机/互联网\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/books?action=update",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "books"],
+              "query": [{ "key": "action", "value": "update" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "6.7 删除图书",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/books?action=delete",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "books"],
+              "query": [{ "key": "action", "value": "delete" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "管理员-用户",
+      "item": [
+        {
+          "name": "7.1 获取用户列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/users?action=list",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "users"],
+              "query": [{ "key": "action", "value": "list" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.2 搜索用户",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/users?action=search&username=20220104044",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "users"],
+              "query": [
+                { "key": "action", "value": "search" },
+                { "key": "username", "value": "20220104044" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "7.3 删除用户",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"id\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/users?action=delete",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "users"],
+              "query": [{ "key": "action", "value": "delete" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "管理员-借阅",
+      "item": [
+        {
+          "name": "8.1 获取借阅记录列表",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/borrows?action=list",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "borrows"],
+              "query": [{ "key": "action", "value": "list" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8.2 搜索借阅记录",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/borrows?action=search&username=20220104044",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "borrows"],
+              "query": [
+                { "key": "action", "value": "search" },
+                { "key": "username", "value": "20220104044" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8.3 获取超期借阅记录",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/borrows?action=overdue",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "borrows"],
+              "query": [{ "key": "action", "value": "overdue" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "8.4 管理员代为归还",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"recordId\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "http://{{ip}}:{{port}}/{{context}}/api/admin/borrows?action=return",
+              "protocol": "http",
+              "host": ["{{ip}}"],
+              "port": "{{port}}",
+              "path": ["{{context}}", "api", "admin", "borrows"],
+              "query": [{ "key": "action", "value": "return" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

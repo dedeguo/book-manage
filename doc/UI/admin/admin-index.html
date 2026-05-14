@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理后台 - 校园图书管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 侧边导航栏 */
+        .sidebar {
+            width: 240px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 30px 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-menu { flex: 1; padding-top: 20px; }
+        .nav-item { padding: 15px 25px; display: block; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: all 0.3s; }
+        .nav-item:hover, .nav-item.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
+
+        /* 主体内容区 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+
+        .content-body { padding: 30px; overflow-y: auto; }
+
+        /* 欢迎区 */
+        .welcome-section {
+            margin-bottom: 30px;
+        }
+        .welcome-title {
+            font-size: 22px;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+        .welcome-text {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* 快捷入口网格 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 900px;
+        }
+
+        .action-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            border-color: #3498db;
+        }
+
+        .action-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
+        }
+
+        .action-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+
+        .action-content p {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        /* 简单统计 */
+        .stats-simple {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 30px;
+            max-width: 900px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar { width: 200px; }
+            .quick-actions, .stats-simple { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">📚 管理员后台</div>
+    <div class="nav-menu">
+        <a href="#" class="nav-item active">首页概览</a>
+        <a href="book-manage.html" class="nav-item">图书管理</a>
+        <a href="user-manage.html" class="nav-item">用户管理</a>
+        <a href="borrow-records.html" class="nav-item">借阅记录</a>
+    </div>
+    <a href="/api/logout" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">退出登录</a>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="breadcrumb">首页</div>
+        <div class="user-info">管理员：admin</div>
+    </header>
+
+    <div class="content-body">
+        <!-- 欢迎区 -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">欢迎使用图书管理系统</h1>
+            <p class="welcome-text">请选择下方功能进行管理操作</p>
+        </div>
+
+        <!-- 快捷入口 -->
+        <div class="quick-actions">
+            <div class="action-card" onclick="location.href='add-book.html'">
+                <div class="action-icon" style="background: #eff6ff; color: #3b82f6;">
+                    ➕
+                </div>
+                <div class="action-content">
+                    <h3>新增图书</h3>
+                    <p>录入新书信息</p>
+                </div>
+            </div>
+
+            <div class="action-card" onclick="location.href='book-manage.html'">
+                <div class="action-icon" style="background: #f0fdf4; color: #10b981;">
+                    📚
+                </div>
+                <div class="action-content">
+                    <h3>图书管理</h3>
+                    <p>编辑/删除图书</p>
+                </div>
+            </div>
+
+            <div class="action-card" onclick="location.href='user-manage.html'">
+                <div class="action-icon" style="background: #fff7ed; color: #f59e0b;">
+                    👥
+                </div>
+                <div class="action-content">
+                    <h3>用户管理</h3>
+                    <p>管理用户账号</p>
+                </div>
+            </div>
+
+            <div class="action-card" onclick="location.href='borrow-records.html'">
+                <div class="action-icon" style="background: #fef2f2; color: #ef4444;">
+                    📋
+                </div>
+                <div class="action-content">
+                    <h3>借阅记录</h3>
+                    <p>查看借阅情况</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 简单统计 -->
+        <div class="stats-simple">
+            <div class="stat-item">
+                <div class="stat-label">图书总数</div>
+                <div class="stat-value">1,284</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">可借复本</div>
+                <div class="stat-value">2,112</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">当前借出</div>
+                <div class="stat-value">456</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">注册用户</div>
+                <div class="stat-value">892</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

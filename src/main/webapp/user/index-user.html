@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>首页 - 校园图书管理系统</title>
+    <style>
+        /* 基础样式复位 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #111827;
+        }
+
+        /* 顶部导航 */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-logo {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo-icon {
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .nav-links a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            margin-left: 12px;
+            cursor: pointer;
+        }
+
+        /* 主体布局 */
+        .main-layout {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+            gap: 24px;
+        }
+
+        /* 侧边筛选栏 */
+        .sidebar-filter {
+            width: 240px;
+            flex-shrink: 0;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 88px;
+        }
+
+        .filter-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #6b7280;
+            gap: 10px;
+        }
+
+        .filter-item:hover {
+            background: #f3f4f6;
+            color: #111827;
+        }
+
+        .filter-item.active {
+            background: #eff6ff;
+            color: #3b82f6;
+            font-weight: 500;
+        }
+
+        .filter-item .icon {
+            font-size: 18px;
+        }
+
+        /* 内容区 */
+        .content-area {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* 搜索栏 */
+        .search-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .search-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            background: #f9fafb url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="%239ca3af"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>') no-repeat 14px center;
+            background-size: 20px;
+        }
+
+        .search-input:focus {
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+        }
+
+        /* 图书网格 */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+        }
+
+        .book-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0e6ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .book-cover-placeholder {
+            width: 80px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .book-cover-placeholder svg {
+            width: 40px;
+            height: 40px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .book-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 状态角标 */
+        .status-corner {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .status-corner.available {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .status-corner.borrowed {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+
+        .book-info {
+            padding: 16px;
+        }
+
+        .book-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-author {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-bottom: 12px;
+        }
+
+        .book-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .copy-info {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .copy-info .available-num {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .copy-info .total-num {
+            color: #9ca3af;
+        }
+
+        .borrow-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .borrow-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .borrow-btn:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            color: #d1d5db;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 8px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .book-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .sidebar-filter {
+                width: 100%;
+            }
+            .filter-card {
+                position: static;
+            }
+            .book-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 0 20px;
+            }
+            .book-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-wrapper {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<nav class="navbar">
+    <div class="nav-logo">
+        <span class="nav-logo-icon">📚</span>
+        校园图书管理系统
+    </div>
+    <div class="nav-links">
+        <a href="#" class="active">首页</a>
+        <a href="my-borrowing.html">我的借阅</a>
+        <a href="profile.html">个人中心</a>
+        <a href="#" onclick="logout(event)">退出</a>
+        <div class="user-avatar" title="个人中心">陈</div>
+    </div>
+</nav>
+
+<!-- 主体布局 -->
+<div class="main-layout">
+    <!-- 侧边筛选 -->
+    <aside class="sidebar-filter">
+        <div class="filter-card">
+            <div class="filter-title">图书分类</div>
+            <div class="filter-item active" data-category="">
+                <span class="icon">📖</span>
+                全部图书
+            </div>
+            <div class="filter-item" data-category="cs">
+                <span class="icon">💻</span>
+                计算机/互联网
+            </div>
+            <div class="filter-item" data-category="lit">
+                <span class="icon">📝</span>
+                文学/小说
+            </div>
+            <div class="filter-item" data-category="edu">
+                <span class="icon">📚</span>
+                教材/教辅
+            </div>
+            <div class="filter-item" data-category="his">
+                <span class="icon">🏛️</span>
+                历史/地理
+            </div>
+            <div class="filter-item" data-category="eco">
+                <span class="icon">📈</span>
+                经济/管理
+            </div>
+            <div class="filter-item" data-category="art">
+                <span class="icon">🎨</span>
+                艺术/设计
+            </div>
+        </div>
+    </aside>
+
+    <!-- 内容区 -->
+    <main class="content-area">
+        <!-- 搜索栏 -->
+        <div class="search-bar">
+            <div class="search-wrapper">
+                <input type="text" class="search-input" placeholder="搜索书名、作者或 ISBN..." id="searchInput">
+                <button class="btn-search" onclick="handleSearch()">搜索</button>
+            </div>
+        </div>
+
+        <!-- 图书列表 -->
+        <div class="book-grid" id="bookGrid">
+            <!-- 图书卡片 1 -->
+            <div class="book-card" onclick="location.href='book-detail.html?id=1'">
+                <div class="book-cover">
+                    <div class="book-cover-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <span class="status-corner available">可借</span>
+                </div>
+                <div class="book-info">
+                    <div class="book-title">Java Web 开发实战</div>
+                    <div class="book-author">王小明 著</div>
+                    <div class="book-meta">
+                        <span class="copy-info">
+                            <span class="available-num">3</span>
+                            <span class="total-num"> / 5 本</span>
+                        </span>
+                        <button class="borrow-btn">借阅</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图书卡片 2 -->
+            <div class="book-card" onclick="location.href='book-detail.html?id=2'">
+                <div class="book-cover">
+                    <div class="book-cover-placeholder" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <span class="status-corner borrowed">已借出</span>
+                </div>
+                <div class="book-info">
+                    <div class="book-title">数据结构与算法分析</div>
+                    <div class="book-author">李华 编</div>
+                    <div class="book-meta">
+                        <span class="copy-info">
+                            <span class="available-num" style="color: #ef4444;">0</span>
+                            <span class="total-num"> / 3 本</span>
+                        </span>
+                        <button class="borrow-btn" disabled>已借完</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图书卡片 3 -->
+            <div class="book-card" onclick="location.href='book-detail.html?id=3'">
+                <div class="book-cover">
+                    <div class="book-cover-placeholder" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <span class="status-corner available">可借</span>
+                </div>
+                <div class="book-info">
+                    <div class="book-title">深入理解计算机系统</div>
+                    <div class="book-author">Randal E. Bryant</div>
+                    <div class="book-meta">
+                        <span class="copy-info">
+                            <span class="available-num">2</span>
+                            <span class="total-num"> / 4 本</span>
+                        </span>
+                        <button class="borrow-btn">借阅</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图书卡片 4 -->
+            <div class="book-card" onclick="location.href='book-detail.html?id=4'">
+                <div class="book-cover">
+                    <div class="book-cover-placeholder" style="background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%);">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <span class="status-corner available">可借</span>
+                </div>
+                <div class="book-info">
+                    <div class="book-title">活着</div>
+                    <div class="book-author">余华</div>
+                    <div class="book-meta">
+                        <span class="copy-info">
+                            <span class="available-num">1</span>
+                            <span class="total-num"> / 2 本</span>
+                        </span>
+                        <button class="borrow-btn">借阅</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 空状态（隐藏） -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <h3>没有找到相关图书</h3>
+            <p>请尝试其他搜索条件或分类</p>
+        </div>
+    </main>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+    let currentCategory = '';
+
+    // 分类代码到中文名称的映射
+    const categoryMap = {
+        'cs': '计算机/互联网',
+        'lit': '文学/小说',
+        'edu': '教材/教辅',
+        'his': '历史/地理',
+        'eco': '经济/管理',
+        'art': '艺术/设计'
+    };
+
+    // 页面加载时检查登录状态
+    window.addEventListener('DOMContentLoaded', function() {
+        if (!Auth.isLoggedIn()) {
+            Auth.redirectToLogin();
+            return;
+        }
+        loadBooks();
+        initEventListeners();
+    });
+
+    // 初始化事件监听
+    function initEventListeners() {
+        // 分类筛选
+        document.querySelectorAll('.filter-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.filter-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                currentCategory = this.dataset.category || '';
+                loadBooks();
+            });
+        });
+
+        // 搜索处理
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleSearch();
+        });
+    }
+
+    // 加载图书列表
+    async function loadBooks() {
+        try {
+            const params = {};
+            if (currentCategory) {
+                // 将分类代码映射为中文名称
+                params.category = categoryMap[currentCategory] || currentCategory;
+            }
+            const result = await API.get('/books?action=list', params);
+            if (result.code === 200) {
+                renderBooks(result.data || []);
+            }
+        } catch (error) {
+            Utils.toast('加载图书列表失败', 'error');
+        }
+    }
+
+    // 搜索图书
+    async function handleSearch() {
+        const keyword = document.getElementById('searchInput').value.trim();
+        if (!keyword) {
+            loadBooks();
+            return;
+        }
+
+        try {
+            const result = await API.get('/books?action=search', { keyword });
+            if (result.code === 200) {
+                renderBooks(result.data || []);
+            }
+        } catch (error) {
+            Utils.toast('搜索失败', 'error');
+        }
+    }
+
+    // 渲染图书列表
+    function renderBooks(books) {
+        const grid = document.getElementById('bookGrid');
+        const emptyState = document.getElementById('emptyState');
+
+        if (!books || books.length === 0) {
+            grid.style.display = 'none';
+            emptyState.style.display = 'block';
+            return;
+        }
+
+        grid.style.display = 'grid';
+        emptyState.style.display = 'none';
+
+        grid.innerHTML = books.map(book => {
+            const isAvailable = book.availableCopies > 0;
+            return `
+                <div class="book-card" onclick="location.href='book_detail.html?id=${book.id}'">
+                    <div class="book-cover">
+                        <div class="book-cover-placeholder" style="background: ${getGradientColor(book.category)}">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <span class="status-corner ${isAvailable ? 'available' : 'borrowed'}">${isAvailable ? '可借' : '已借出'}</span>
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-meta">
+                            <span class="copy-info">
+                                <span class="available-num" style="color: ${isAvailable ? '#10b981' : '#ef4444'};">${book.availableCopies}</span>
+                                <span class="total-num"> / ${book.totalCopies} 本</span>
+                            </span>
+                            <button class="borrow-btn" ${!isAvailable ? 'disabled' : ''} onclick="event.stopPropagation(); handleBorrow(${book.id})">${isAvailable ? '借阅' : '已借完'}</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // 根据分类获取渐变色
+    function getGradientColor(category) {
+        const colors = {
+            'cs': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'lit': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'edu': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'his': 'linear-gradient(135deg, #d299c2 0%, #fef9d7 100%)',
+            'eco': 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+            'art': 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)'
+        };
+        return colors[category] || 'linear-gradient(135deg, #e0e7ff 0%, #f0e6ff 100%)';
+    }
+
+    // 借阅处理
+    async function handleBorrow(bookId) {
+        try {
+            const result = await API.post('/borrow?action=borrow', { bookId });
+            if (result.code === 200) {
+                Utils.toast('借阅成功', 'success');
+                loadBooks();
+            } else {
+                Utils.toast(result.message || '借阅失败', 'error');
+            }
+        } catch (error) {
+            Utils.toast(error.message || '借阅失败', 'error');
+        }
+    }
+
+    // 退出登录
+    async function logout(event) {
+        event.preventDefault();
+        try {
+            await API.post('/auth?action=logout');
+            Auth.clearUser();
+            Utils.toast('退出成功', 'success');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 500);
+        } catch (error) {
+            Utils.toast(error.message || '退出失败', 'error');
+        }
+    }
+</script>
+
+</body>
+</html>

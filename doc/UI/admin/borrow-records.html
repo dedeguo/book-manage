@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>借阅记录管理 - 校园图书管理系统</title>
+    <style>
+        /* 基础样式复位 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* 侧边导航栏 */
+        .sidebar {
+            width: 240px;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 30px 20px; text-align: center; font-size: 18px; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .nav-menu { flex: 1; padding-top: 20px; }
+        .nav-item { padding: 15px 25px; display: block; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; transition: all 0.3s; }
+        .nav-item:hover, .nav-item.active { background-color: #34495e; color: white; border-left: 4px solid #3498db; }
+
+        /* 主体内容区 */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        header { background: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
+
+        .content-body { padding: 30px; overflow-y: auto; }
+
+        /* 筛选工具栏 */
+        .filter-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-label {
+            font-size: 14px;
+            color: #606266;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .search-input {
+            padding: 10px 14px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            width: 180px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .search-input:hover {
+            border-color: #c0c4cc;
+        }
+        .search-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+        .search-select {
+            padding: 10px 14px;
+            border: 1px solid #dcdfe6;
+            border-radius: 6px;
+            background: white;
+            outline: none;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 120px;
+        }
+        .search-select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+
+        /* 搜索按钮 */
+        .btn-search {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            min-height: 40px;
+        }
+        .btn-search:hover {
+            background: #2980b9;
+            transform: translateY(-1px);
+        }
+        .btn-search svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 重置按钮 */
+        .btn-reset {
+            background: #f4f4f5;
+            color: #606266;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            min-height: 40px;
+        }
+        .btn-reset:hover {
+            background: #e9e9eb;
+        }
+
+        /* 数据表格 */
+        .record-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            border-collapse: collapse;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+            overflow: hidden;
+        }
+        .record-table th {
+            background: #f8f9fa;
+            text-align: left;
+            padding: 15px 20px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .record-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #374151;
+        }
+        .record-table tbody tr {
+            transition: background-color 0.2s;
+        }
+        .record-table tbody tr:hover {
+            background: #f9fafb;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        .status-borrowing { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+        .status-returned { background: #f3f4f6; color: #6b7280; border: 1px solid #d1d5db; }
+        .status-overdue { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+
+        /* 超期天数标签 */
+        .overdue-days {
+            font-size: 12px;
+            color: #dc2626;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* 操作按钮 */
+        .btn-return {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            min-height: 32px;
+        }
+        .btn-return:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        .btn-return:focus {
+            outline: 2px solid #10b981;
+            outline-offset: 2px;
+        }
+        .btn-return:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 借阅人信息 */
+        .borrower-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .borrower-name {
+            font-weight: 600;
+            color: #111827;
+        }
+        .borrower-id {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* 图书名称 */
+        .book-title {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #374151;
+        }
+        .empty-state p {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        /* 响应式支持 */
+        @media (max-width: 1024px) {
+            .record-table {
+                font-size: 13px;
+            }
+            .record-table th,
+            .record-table td {
+                padding: 12px 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .filter-bar {
+                flex-direction: column;
+            }
+            .filter-group {
+                width: 100%;
+            }
+            .search-input,
+            .search-select {
+                width: 100%;
+            }
+            .btn-search,
+            .btn-reset {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-header">📚 管理员后台</div>
+    <div class="nav-menu">
+        <a href="admin-index.html" class="nav-item">首页概览</a>
+        <a href="book-manage.html" class="nav-item">图书管理</a>
+        <a href="user-manage.html" class="nav-item">用户管理</a>
+        <a href="#" class="nav-item active">借阅记录</a>
+    </div>
+    <a href="/api/logout" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1);">退出登录</a>
+</div>
+
+<div class="main-content">
+    <header>
+        <div class="breadcrumb">借阅管理 / 借阅记录</div>
+        <div class="user-info">管理员：admin</div>
+    </header>
+
+    <div class="content-body">
+        <!-- 筛选工具栏 -->
+        <div class="filter-bar">
+            <div class="filter-group">
+                <span class="filter-label">学号/工号</span>
+                <input type="text" class="search-input" placeholder="请输入学号或工号" id="searchUsername">
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">姓名</span>
+                <input type="text" class="search-input" placeholder="请输入姓名" id="searchName">
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">图书名称</span>
+                <input type="text" class="search-input" placeholder="请输入书名" id="searchBook">
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">状态</span>
+                <select class="search-select" id="searchStatus">
+                    <option value="">全部状态</option>
+                    <option value="borrowing">借阅中</option>
+                    <option value="returned">已归还</option>
+                    <option value="overdue">已超期</option>
+                </select>
+            </div>
+            <button class="btn-search" onclick="handleSearch()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                查询
+            </button>
+            <button class="btn-reset" onclick="handleReset()">重置</button>
+        </div>
+
+        <!-- 借阅记录表格 -->
+        <table class="record-table">
+            <thead>
+                <tr>
+                    <th>借阅人</th>
+                    <th>图书名称</th>
+                    <th>借阅日期</th>
+                    <th>应还日期</th>
+                    <th>实际归还</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="recordTableBody">
+                <!-- 借阅中 -->
+                <tr>
+                    <td>
+                        <div class="borrower-info">
+                            <span class="borrower-name">陈德</span>
+                            <span class="borrower-id">20220104044</span>
+                        </div>
+                    </td>
+                    <td><span class="book-title">Java Web 开发实战</span></td>
+                    <td>2026-03-20</td>
+                    <td>2026-04-19</td>
+                    <td>-</td>
+                    <td><span class="status-badge status-borrowing">借阅中</span></td>
+                    <td>
+                        <button class="btn-return" onclick="handleReturn('20220104044', 'Java Web 开发实战')">手动归还</button>
+                    </td>
+                </tr>
+                <!-- 已超期 -->
+                <tr>
+                    <td>
+                        <div class="borrower-info">
+                            <span class="borrower-name">王老师</span>
+                            <span class="borrower-id">T2019001</span>
+                        </div>
+                    </td>
+                    <td><span class="book-title">数据结构与算法分析</span></td>
+                    <td>2026-02-01</td>
+                    <td>2026-03-03</td>
+                    <td>-</td>
+                    <td>
+                        <span class="status-badge status-overdue">已超期</span>
+                        <span class="overdue-days">(超期 32 天)</span>
+                    </td>
+                    <td>
+                        <button class="btn-return" onclick="handleReturn('T2019001', '数据结构与算法分析')">手动归还</button>
+                    </td>
+                </tr>
+                <!-- 已归还 -->
+                <tr>
+                    <td>
+                        <div class="borrower-info">
+                            <span class="borrower-name">张三</span>
+                            <span class="borrower-id">20220104045</span>
+                        </div>
+                    </td>
+                    <td><span class="book-title">计算机网络原理</span></td>
+                    <td>2026-01-10</td>
+                    <td>2026-02-09</td>
+                    <td>2026-02-05</td>
+                    <td><span class="status-badge status-returned">已归还</span></td>
+                    <td>
+                        <button class="btn-return" disabled title="该图书已归还">手动归还</button>
+                    </td>
+                </tr>
+                <!-- 借阅中 - 教师 -->
+                <tr>
+                    <td>
+                        <div class="borrower-info">
+                            <span class="borrower-name">李教授</span>
+                            <span class="borrower-id">T2018005</span>
+                        </div>
+                    </td>
+                    <td><span class="book-title">深入理解计算机系统</span></td>
+                    <td>2026-03-15</td>
+                    <td>2026-04-14</td>
+                    <td>-</td>
+                    <td><span class="status-badge status-borrowing">借阅中</span></td>
+                    <td>
+                        <button class="btn-return" onclick="handleReturn('T2018005', '深入理解计算机系统')">手动归还</button>
+                    </td>
+                </tr>
+                <!-- 已超期 -->
+                <tr>
+                    <td>
+                        <div class="borrower-info">
+                            <span class="borrower-name">刘学生</span>
+                            <span class="borrower-id">20220104088</span>
+                        </div>
+                    </td>
+                    <td><span class="book-title">设计模式之禅</span></td>
+                    <td>2026-01-20</td>
+                    <td>2026-02-19</td>
+                    <td>-</td>
+                    <td>
+                        <span class="status-badge status-overdue">已超期</span>
+                        <span class="overdue-days">(超期 45 天)</span>
+                    </td>
+                    <td>
+                        <button class="btn-return" onclick="handleReturn('20220104088', '设计模式之禅')">手动归还</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- 空状态（隐藏，当无数据时显示） -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <h3>暂无借阅记录</h3>
+            <p>当前搜索条件下没有找到借阅记录，请尝试其他搜索条件</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 搜索处理
+    function handleSearch() {
+        const username = document.getElementById('searchUsername').value.trim();
+        const name = document.getElementById('searchName').value.trim();
+        const book = document.getElementById('searchBook').value.trim();
+        const status = document.getElementById('searchStatus').value;
+
+        if (!username && !name && !book && !status) {
+            alert('请输入搜索条件或选择状态筛选');
+            return;
+        }
+
+        const conditions = [];
+        if (username) conditions.push('学号/工号：' + username);
+        if (name) conditions.push('姓名：' + name);
+        if (book) conditions.push('图书：' + book);
+        if (status) {
+            const statusMap = { 'borrowing': '借阅中', 'returned': '已归还', 'overdue': '已超期' };
+            conditions.push('状态：' + statusMap[status]);
+        }
+
+        alert('搜索条件：\n' + conditions.join('\n'));
+        // TODO: 调用后端 API 进行搜索
+        // fetch('/api/admin/borrows/search?username=' + encodeURIComponent(username) + '&name=' + encodeURIComponent(name) + '&book=' + encodeURIComponent(book) + '&status=' + status)
+    }
+
+    // 重置搜索
+    function handleReset() {
+        document.getElementById('searchUsername').value = '';
+        document.getElementById('searchName').value = '';
+        document.getElementById('searchBook').value = '';
+        document.getElementById('searchStatus').value = '';
+        // TODO: 重新加载全部数据
+        alert('已重置搜索条件');
+    }
+
+    // 手动归还处理
+    function handleReturn(userIdentifier, bookTitle) {
+        if (confirm('确定要代为归还图书吗？\n\n借阅人：' + userIdentifier + '\n图书：《' + bookTitle + '》\n\n此操作将：\n1. 更新借阅记录状态为"已归还"\n2. 图书可借复本数 +1')) {
+            alert('已成功归还图书《' + bookTitle + '》');
+            // TODO: 调用后端 API
+            // fetch('/api/admin/borrows/' + recordId + '/return', { method: 'POST' })
+        }
+    }
+
+    // 支持回车搜索
+    document.getElementById('searchUsername').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleSearch();
+    });
+    document.getElementById('searchName').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleSearch();
+    });
+    document.getElementById('searchBook').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') handleSearch();
+    });
+</script>
+
+</body>
+</html>

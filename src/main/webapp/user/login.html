@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 校园图书管理系统</title>
+    <style>
+        /* 基础样式复位 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        /* 登录卡片样式 */
+        .login-container {
+            background: white;
+            padding: 45px 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            width: 420px;
+            text-align: center;
+        }
+
+        .header {
+            margin-bottom: 35px;
+        }
+
+        .header-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.35);
+        }
+
+        .header h2 {
+            color: #111827;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #9ca3af;
+            font-size: 14px;
+        }
+
+        /* 表单布局 */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-input-wrapper {
+            position: relative;
+        }
+
+        .form-input-wrapper input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.2s;
+            background-color: #f9fafb;
+        }
+
+        .form-input-wrapper input:hover {
+            border-color: #d1d5db;
+        }
+
+        .form-input-wrapper input:focus {
+            border-color: #667eea;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-input-wrapper .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .form-input-wrapper .input-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 密码显示切换 */
+        .password-toggle {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-toggle:hover {
+            color: #6b7280;
+        }
+
+        .password-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 记住我 */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 13px;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .checkbox-wrapper span {
+            color: #6b7280;
+        }
+
+        .forgot-password {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        /* 登录按钮 */
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        /* 底部切换链接 */
+
+        /* 底部切换链接 */
+        .footer-links {
+            margin-top: 25px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .footer-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            .login-container {
+                width: 90%;
+                padding: 35px 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="header">
+        <div class="header-icon">📚</div>
+        <h2>校园图书管理系统</h2>
+        <p>欢迎回来，请登录您的账号</p>
+    </div>
+
+    <form action="/api/login" method="POST">
+        <div class="form-group">
+            <label>用户名</label>
+            <div class="form-input-wrapper">
+                <span class="input-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </span>
+                <input type="text" name="username" placeholder="请输入学号或教工号" required autocomplete="username">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>密码</label>
+            <div class="form-input-wrapper">
+                <span class="input-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </span>
+                <input type="password" name="password" id="passwordInput" placeholder="请输入密码" required autocomplete="current-password">
+                <button type="button" class="password-toggle" onclick="togglePassword()" title="显示/隐藏密码">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="eyeIcon">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-options">
+            <label class="checkbox-wrapper">
+                <input type="checkbox" name="remember" value="1">
+                <span>记住我</span>
+            </label>
+            <a href="#" class="forgot-password">忘记密码？</a>
+        </div>
+
+        <button type="submit" class="btn-login">登 录</button>
+    </form>
+
+    <div class="footer-links">
+        还没有账号？<a href="register.html">立即注册</a>
+    </div>
+</div>
+
+<script src="../js/common.js"></script>
+<script>
+    // 密码显示/隐藏切换
+    function togglePassword() {
+        const passwordInput = document.getElementById('passwordInput');
+        const eyeIcon = document.getElementById('eyeIcon');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            `;
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            `;
+        }
+    }
+
+    // 页面加载时不自动重定向
+    // 原因：sessionStorage 中的用户信息可能对应已过期的服务器端 session
+    // 如果强制重定向到首页，会被过滤器拦截又跳回登录页，形成循环
+    // 用户应始终能访问登录页，登录成功后再由后端 setSession 并重定向
+
+    // 表单提交处理
+    document.querySelector('form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const username = this.querySelector('[name="username"]').value;
+        const password = this.querySelector('[name="password"]').value;
+        const submitBtn = this.querySelector('[type="submit"]');
+
+        // 禁用按钮防止重复提交
+        submitBtn.disabled = true;
+        submitBtn.textContent = '登录中...';
+
+        try {
+            const result = await API.post('/auth?action=login', { username, password });
+
+            if (result.code === 200) {
+                // 保存用户信息
+                Auth.saveUser(result.data);
+                Utils.toast('登录成功', 'success');
+
+                // 延迟跳转
+                setTimeout(() => {
+                    Auth.redirectToHome();
+                }, 500);
+            } else {
+                Utils.toast(result.message || '登录失败', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '登 录';
+            }
+        } catch (error) {
+            Utils.toast(error.message || '登录失败，请检查网络连接', 'error');
+            submitBtn.disabled = false;
+            submitBtn.textContent = '登 录';
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书详情 - 校园图书管理系统</title>
+    <style>
+        /* 基础样式复位 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: #f0f2f5;
+            color: #111827;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .navbar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0 40px;
+            height: 64px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+        }
+
+        .nav-logo {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo-icon {
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.15);
+            color: white;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* 主体内容 */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        /* 返回按钮 */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #6b7280;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: #667eea;
+        }
+
+        .back-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* 详情卡片 */
+        .detail-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .detail-body {
+            display: flex;
+            gap: 40px;
+            padding: 40px;
+        }
+
+        /* 左侧封面区 */
+        .book-cover-section {
+            flex: 0 0 280px;
+        }
+
+        .book-cover-large {
+            width: 100%;
+            height: 380px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0e6ff 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .book-cover-placeholder {
+            width: 140px;
+            height: 190px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .book-cover-placeholder svg {
+            width: 64px;
+            height: 64px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .book-cover-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* 右侧信息区 */
+        .book-info-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .book-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 16px;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            width: fit-content;
+        }
+
+        .status-available {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #6ee7b7;
+        }
+
+        .status-borrowed {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* 元信息网格 */
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .meta-value {
+            font-size: 14px;
+            color: #374151;
+            font-weight: 500;
+        }
+
+        /* 复本数卡片 */
+        .copy-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+            border-radius: 12px;
+            border: 1px solid #dbeafe;
+            margin-bottom: 24px;
+        }
+
+        .copy-display {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .copy-num {
+            font-size: 36px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .copy-label {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .copy-total {
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        .copy-progress {
+            flex: 1;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .copy-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* 简介区域 */
+        .description-section {
+            flex: 1;
+            margin-bottom: 24px;
+        }
+
+        .section-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-label svg {
+            width: 18px;
+            height: 18px;
+            color: #667eea;
+        }
+
+        .description-text {
+            font-size: 15px;
+            color: #6b7280;
+            line-height: 1.8;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        /* 操作区 */
+        .action-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 24px;
+            border-top: 2px solid #f3f4f6;
+        }
+
+        .rule-list {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .rule-list li {
+            margin-bottom: 6px;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rule-list li svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 借阅按钮 */
+        .btn-borrow {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 48px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.35);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-borrow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.45);
+        }
+
+        .btn-borrow:disabled {
+            background: #e5e7eb;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-borrow svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* 消息提示 */
+        .toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+        }
+
+        .toast.success {
+            background: #ecfdf5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+        }
+
+        .toast.error {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        /* 响应式 */
+        @media (max-width: 900px) {
+            .detail-body {
+                flex-direction: column;
+                padding: 24px;
+                gap: 24px;
+            }
+            .book-cover-section {
+                flex: none;
+                width: 100%;
+            }
+            .book-cover-large {
+                height: 300px;
+            }
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+            .action-section {
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 0 20px;
+            }
+            .container {
+                padding: 16px;
+            }
+            .book-title {
+                font-size: 22px;
+            }
+            .btn-borrow {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<nav class="navbar">
+    <div class="nav-logo">
+        <span class="nav-logo-icon">📚</span>
+        校园图书管理系统
+    </div>
+    <div class="nav-links">
+        <a href="index-user.html">首页</a>
+        <a href="my-borrowing.html">我的借阅</a>
+        <a href="profile.html">个人中心</a>
+        <a href="/api/logout">退出</a>
+        <div class="user-avatar" title="个人中心">陈</div>
+    </div>
+</nav>
+
+<!-- 主体内容 -->
+<div class="container">
+    <!-- 返回链接 -->
+    <a href="index-user.html" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        返回图书列表
+    </a>
+
+    <!-- 详情卡片 -->
+    <div class="detail-card">
+        <div class="detail-body">
+            <!-- 左侧封面 -->
+            <div class="book-cover-section">
+                <div class="book-cover-large">
+                    <div class="book-cover-placeholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <!-- 如果有封面图片，使用：<img src="xxx.jpg" alt="封面" class="book-cover-img"> -->
+                </div>
+            </div>
+
+            <!-- 右侧信息 -->
+            <div class="book-info-section">
+                <h1 class="book-title">Java Web 开发实战</h1>
+
+                <!-- 状态标签 -->
+                <div class="status-badge status-available">
+                    <span class="status-dot"></span>
+                    可借阅
+                </div>
+
+                <!-- 元信息 -->
+                <div class="meta-grid">
+                    <div class="meta-item">
+                        <span class="meta-label">作者</span>
+                        <span class="meta-value">王小明</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">出版社</span>
+                        <span class="meta-value">清华大学出版社</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">ISBN</span>
+                        <span class="meta-value">978-7-302-12345-6</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">分类</span>
+                        <span class="meta-value">计算机/互联网</span>
+                    </div>
+                </div>
+
+                <!-- 复本数卡片 -->
+                <div class="copy-card">
+                    <div class="copy-display">
+                        <span class="copy-num">3</span>
+                        <span class="copy-label">可借</span>
+                    </div>
+                    <div class="copy-progress">
+                        <div class="copy-progress-bar" style="width: 60%;"></div>
+                    </div>
+                    <span class="copy-total">/ 5 本</span>
+                </div>
+
+                <!-- 简介 -->
+                <div class="description-section">
+                    <div class="section-label">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        图书简介
+                    </div>
+                    <div class="description-text">
+                        本书深入浅出地介绍了 Java Web 开发的核心技术，包括 Servlet、JSP、JDBC 以及常用的设计模式。全书共分 15 章，从基础概念讲起，逐步引导读者掌握实际的开发技能。每章都配有丰富的示例代码和实战案例，适合初学者入门学习，也可作为有一定经验的开发人员的参考书籍。
+                    </div>
+                </div>
+
+                <!-- 操作区 -->
+                <div class="action-section">
+                    <ul class="rule-list">
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            借阅期限：30 天
+                        </li>
+                        <li>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            每人同时借阅上限：5 本
+                        </li>
+                    </ul>
+
+                    <button class="btn-borrow" onclick="handleBorrow()">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                        </svg>
+                        立即借阅
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 消息提示 -->
+<div class="toast" id="toast"></div>
+
+<script>
+    // 借阅处理
+    function handleBorrow() {
+        // TODO: 调用后端 API
+        // fetch('/api/borrow/' + bookId, { method: 'POST' })
+        showToast('借阅申请已提交', 'success');
+    }
+
+    // 显示提示
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast ' + type;
+        toast.style.display = 'flex';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
